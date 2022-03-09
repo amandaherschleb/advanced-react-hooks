@@ -10,6 +10,26 @@ import {
   PokemonErrorBoundary,
 } from '../pokemon'
 
+function useSafeDispatch(dispatch) {
+  const mountedRef = React.useRef(false)
+  
+  // useLayout calls before anything is painted
+  React.useLayoutEffect(() => {
+    // set ref to true on mount
+    mountedRef.current = true
+    // return is called on unmount and sets to false
+    return () => {
+      mountedRef.current = false
+    }
+  , []}) // empty dependency list = only called on mount and unmount
+
+  return React.useCallback((...args) => {
+    if (mountedRef.current) {
+      dispatch(...args)
+    }
+  }, [dispatch]) // dispatch function never changes but good to include
+}
+
 // generic function for handling all async actions
 function asyncReducer(state, action) {
   switch (action.type) {
@@ -29,12 +49,14 @@ function asyncReducer(state, action) {
 }
 
 function useAsync(initialState) {
-  const [state, dispatch] = React.useReducer(asyncReducer, {
+  const [state, unsafeDispatch] = React.useReducer(asyncReducer, {
     status: 'idle',
     data: null,
     error: null,
     ...initialState
   })
+
+  const dispatch = useSafeDispatch(unsafeDispatch)
 
   const run = React.useCallback(promise => {
     dispatch({type: 'pending'})
@@ -46,7 +68,7 @@ function useAsync(initialState) {
         dispatch({type: 'rejected', error})
       },
     ) 
-  }, [])
+  }, [dispatch])
 
   return {...state, run}
 }
