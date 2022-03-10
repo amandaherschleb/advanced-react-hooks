@@ -1,12 +1,15 @@
 // useDebugValue: useMedia
 // http://localhost:3000/isolated/exercise/06.js
 
+// for custom hooks only, use with React dev tools chrome extension
+
 import * as React from 'react'
 
 function useMedia(query, initialState = false) {
   const [state, setState] = React.useState(initialState)
-  // 🐨 call React.useDebugValue here.
-  // 💰 here's the formatted label I use: `\`${query}\` => ${state}`
+
+  React.useDebugValue(`\`${query}\` => ${state}`)
+  // In debug chrome you see: Media: "`(min-width: 1000px)` => true"
 
   React.useEffect(() => {
     let mounted = true
