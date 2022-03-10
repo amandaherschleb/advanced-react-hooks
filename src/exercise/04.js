@@ -7,6 +7,7 @@ function MessagesDisplay({messages}) {
   const containerRef = React.useRef()
   // solves the problem of the scroll happening after the message is added 
   // rather than at the same time
+  // use this when you are manipulating the DOM
   React.useLayoutEffect(() => {
     containerRef.current.scrollTop = containerRef.current.scrollHeight
   })
